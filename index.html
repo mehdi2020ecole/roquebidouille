@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dart Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #score { font-size: 24px; }
+        #playArea { width: 300px; height: 300px; border: 1px solid #000; position: relative; }
+        .dart { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; }
+    </style>
+</head>
+<body>
+    <h1>Dart Game</h1>
+    <div id="score">Score: 0</div>
+    <div id="playArea"></div>
+    <button id="throwDart">Throw Dart</button>
+
+    <script>
+        let score = 0;
+        const scoreDiv = document.getElementById('score');
+        const playArea = document.getElementById('playArea');
+        const throwDartBtn = document.getElementById('throwDart');
+
+        throwDartBtn.addEventListener('click', throwDart);
+
+        function throwDart() {
+            const dart = document.createElement('div');
+            dart.classList.add('dart');
+            const x = Math.random() * (playArea.clientWidth - 20);
+            const y = Math.random() * (playArea.clientHeight - 20);
+            dart.style.left = `${x}px`;
+            dart.style.top = `${y}px`;
+            playArea.appendChild(dart);
+
+            // Update score
+            score += Math.floor(Math.random() * 10) + 1;
+            scoreDiv.textContent = `Score: ${score}`;
+        }
+    </script>
+</body>
+</html>
