@@ -2,41 +2,73 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dart Game</title>
+    <title>Roquebidouille Dart Game</title>
     <style>
         body { font-family: Arial, sans-serif; }
-        #score { font-size: 24px; }
-        #playArea { width: 300px; height: 300px; border: 1px solid #000; position: relative; }
-        .dart { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; }
+        #scores { display: flex; gap: 10px; }
+        button { padding: 10px; margin: 5px; }
     </style>
 </head>
 <body>
-    <h1>Dart Game</h1>
-    <div id="score">Score: 0</div>
-    <div id="playArea"></div>
-    <button id="throwDart">Throw Dart</button>
-
+    <h1>Roquebidouille Dart Game</h1>
+    <div id="player-management">
+        <input type="text" id="playerName" placeholder="Enter player name" />
+        <button id="addPlayer">Add Player</button>
+    </div>
+    <div id="scores">
+        <button class="score-btn" data-score="60">60</button>
+        <button class="score-btn" data-score="45">45</button>
+        <button class="score-btn" data-score="20">20</button>
+        <button class="score-btn" data-score="10">10</button>
+        <button class="score-btn" data-score="5">5</button>
+    </div>
+    <div id="tournament-bracket"></div>
+    <div id="history"></div>
     <script>
-        let score = 0;
-        const scoreDiv = document.getElementById('score');
-        const playArea = document.getElementById('playArea');
-        const throwDartBtn = document.getElementById('throwDart');
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(function() { console.log('Service Worker Registered'); });
+        }
 
-        throwDartBtn.addEventListener('click', throwDart);
+        const players = [];
+        let scores = {};
+        let lastScore = 0;
 
-        function throwDart() {
-            const dart = document.createElement('div');
-            dart.classList.add('dart');
-            const x = Math.random() * (playArea.clientWidth - 20);
-            const y = Math.random() * (playArea.clientHeight - 20);
-            dart.style.left = `${x}px`;
-            dart.style.top = `${y}px`;
-            playArea.appendChild(dart);
+        document.getElementById('addPlayer').onclick = function() {
+            const playerName = document.getElementById('playerName').value;
+            if (playerName && !players.includes(playerName)) {
+                players.push(playerName);
+                scores[playerName] = 301;
+                updateTournamentBracket();
+                document.getElementById('playerName').value = '';
+                updateHistory(`Added player: ${playerName}`);
+            } else {
+                alert('Invalid player name or player already exists.');
+            }
+        };
 
-            // Update score
-            score += Math.floor(Math.random() * 10) + 1;
-            scoreDiv.textContent = `Score: ${score}`;
+        document.querySelectorAll('.score-btn').forEach(button => {
+            button.onclick = function() {
+                const score = parseInt(this.getAttribute('data-score'));
+                if (players.length > 0) {
+                    const currentPlayer = players[players.length - 1];
+                    lastScore = scores[currentPlayer];
+                    scores[currentPlayer] -= score;
+                    updateHistory(`${currentPlayer} scored ${score}. Current score: ${scores[currentPlayer]}`);
+                }
+            };
+        });
+
+        function updateTournamentBracket() {
+            const bracket = document.getElementById('tournament-bracket');
+            bracket.innerHTML = 'Tournament Bracket: ' + players.join(', ');
+        }
+
+        function updateHistory(entry) {
+            const historyDiv = document.getElementById('history');
+            historyDiv.innerHTML += '<p>' + entry + '</p>';
         }
     </script>
 </body>
